@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - Driver{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-clipboard-list"></i> Mark Student Attendance
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bus"></i> Bus {{ assigned_bus.bus_number }} - Today's Attendance
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Grade</th>
+                                    <th>Student ID</th>
+                                    <th>Status</th>
+                                    <th>Current Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in assigned_students %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+                                    </td>
+                                    <td>{{ student.grade }}</td>
+                                    <td>{{ student.student_id }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-outline-success {% for att in today_attendance %}{% if att.student.id == student.id and att.status == 'present' %}active{% endif %}{% endfor %}">
+                                                <input type="radio" name="status_{{ student.id }}" value="present" autocomplete="off">
+                                                Present
+                                            </label>
+                                            <label class="btn btn-outline-danger {% for att in today_attendance %}{% if att.student.id == student.id and att.status == 'absent' %}active{% endif %}{% endfor %}">
+                                                <input type="radio" name="status_{{ student.id }}" value="absent" autocomplete="off">
+                                                Absent
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% for att in today_attendance %}
+                                            {% if att.student.id == student.id %}
+                                                <span class="badge bg-{% if att.status == 'present' %}success{% elif att.status == 'absent' %}danger{% else %}warning{% endif %}">
+                                                    {{ att.status|title }}
+                                                </span>
+                                            {% endif %}
+                                        {% empty %}
+                                            <span class="badge bg-secondary">Not Marked</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-users fa-3x mb-3"></i><br>
+                                        No students assigned to your bus.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if assigned_students %}
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

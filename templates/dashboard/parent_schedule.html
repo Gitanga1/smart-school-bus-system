@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Schedule - Parent{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-calendar-alt"></i> Bus Schedule
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <span class="badge bg-primary">{{ today }}</span>
+    </div>
+</div>
+
+{% if schedule_data %}
+<div class="row">
+    {% for schedule in schedule_data %}
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-child"></i> {{ schedule.child.first_name }}'s Schedule
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <h6>Bus Information</h6>
+                        <p class="mb-1">
+                            <i class="fas fa-bus text-warning"></i>
+                            <strong>Bus {{ schedule.bus.bus_number }}</strong>
+                        </p>
+                        <p class="mb-1 small">
+                            <i class="fas fa-route text-info"></i>
+                            {{ schedule.route.route_name }}
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <h6>Timings</h6>
+                        <p class="mb-1">
+                            <i class="fas fa-arrow-up text-success"></i>
+                            Pickup: <strong>{{ schedule.pickup_time }}</strong>
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-arrow-down text-danger"></i>
+                            Dropoff: <strong>{{ schedule.dropoff_time }}</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <h6>Route Stops:</h6>
+                <div class="route-timeline">
+                    {% for stop in schedule.stops %}
+                    <div class="route-stop mb-2">
+                        <div class="stop-marker bg-primary"></div>
+                        <div class="stop-content">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>Stop {{ stop.sequence_order }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ stop.pickup_point.name }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-success">
+                                        <i class="fas fa-clock"></i>
+                                        {{ stop.pickup_point.estimated_pickup_time }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Weekly Schedule -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-calendar-week"></i> Weekly Schedule Overview
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Time</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Morning Pickup</strong></td>
+                        {% for schedule in schedule_data %}
+                        <td class="table-success">
+                            <i class="fas fa-bus text-warning"></i>
+                            {{ schedule.pickup_time }}<br>
+                            <small>Bus {{ schedule.bus.bus_number }}</small>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td><strong>Afternoon Dropoff</strong></td>
+                        {% for schedule in schedule_data %}
+                        <td class="table-info">
+                            <i class="fas fa-home text-primary"></i>
+                            {{ schedule.dropoff_time }}<br>
+                            <small>Bus {{ schedule.bus.bus_number }}</small>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
+                <h4>No Schedule Available</h4>
+                <p class="text-muted">Your children don't have active bus schedules at the moment.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Return to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

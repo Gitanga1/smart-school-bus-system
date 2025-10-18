@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Location - Driver{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-map-marker-alt"></i> Update Bus Location
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bus"></i> Bus {{ assigned_bus.bus_number }}
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <i class="fas fa-bus fa-4x text-info mb-3"></i>
+                <h4>Update Current Location</h4>
+                <p class="text-muted">This will update your GPS position in the system.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="latitude" value="40.7128">
+                    <input type="hidden" name="longitude" value="-74.0060">
+                    
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-satellite"></i> Update My Location
+                    </button>
+                </form>
+                
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6>How it works:</h6>
+                    <p class="small text-muted mb-0">
+                        In a real application, this would connect to your phone's GPS 
+                        or bus tracking device to get accurate coordinates.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history"></i> Recent Locations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_locations %}
+                    <div class="list-group list-group-flush">
+                        {% for location in recent_locations %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Location Update</h6>
+                                <small>{{ location.timestamp|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1">
+                                <i class="fas fa-map-pin text-danger"></i>
+                                {{ location.latitude|floatformat:4 }}, {{ location.longitude|floatformat:4 }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Speed: {{ location.speed }} km/h
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">
+                        <i class="fas fa-map-marker-alt fa-2x mb-3"></i><br>
+                        No location updates yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

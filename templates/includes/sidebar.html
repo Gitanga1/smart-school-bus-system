@@ -1,0 +1,60 @@
+<nav class="nav flex-column">
+    <div class="nav-item mb-3">
+        <h6 class="text-muted text-uppercase">Main Navigation</h6>
+    </div>
+    
+    <a class="nav-link text-dark mb-2" href="{% url 'home' %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    
+    <!-- Admin & School Staff Links -->
+    {% if user.user_type in 'admin,school_staff' %}
+    <div class="nav-item mb-3 mt-3">
+        <h6 class="text-muted text-uppercase">Management</h6>
+    </div>
+    <a class="nav-link text-dark mb-2" href="/admin/accounts/user/">
+        <i class="fas fa-users"></i> User Management
+    </a>
+    <a class="nav-link text-dark mb-2" href="/admin/buses/bus/">
+        <i class="fas fa-bus"></i> Bus Management
+    </a>
+    <a class="nav-link text-dark mb-2" href="/admin/students/student/">
+        <i class="fas fa-graduation-cap"></i> Student Management
+    </a>
+    <a class="nav-link text-dark mb-2" href="/admin/routes/route/">
+        <i class="fas fa-route"></i> Route Management
+    </a>
+    {% endif %}
+    
+    <!-- Driver Links -->
+    {% if user.user_type == 'driver' %}
+    <div class="nav-item mb-3 mt-3">
+        <h6 class="text-muted text-uppercase">Driver Tools</h6>
+    </div>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-map-marker-alt"></i> Update Location
+    </a>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-clipboard-list"></i> Student Attendance
+    </a>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-route"></i> My Route
+    </a>
+    {% endif %}
+    
+    <!-- Parent Links -->
+    {% if user.user_type == 'parent' %}
+    <div class="nav-item mb-3 mt-3">
+        <h6 class="text-muted text-uppercase">Parent Tools</h6>
+    </div>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-map-marked-alt"></i> Track Bus
+    </a>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-bell"></i> Notifications
+    </a>
+    <a class="nav-link text-dark mb-2" href="#">
+        <i class="fas fa-child"></i> My Children
+    </a>
+    {% endif %}
+</nav>

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Smart School Bus{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-tachometer-alt"></i> 
+        {% if user.user_type == 'parent' %}Parent{% elif user.user_type == 'driver' %}Driver{% elif user.user_type in 'admin,school_staff' %}Admin{% else %}Smart School Bus{% endif %} Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <span class="badge bg-{% if user.user_type == 'admin' %}danger{% elif user.user_type == 'driver' %}warning{% elif user.user_type == 'parent' %}info{% else %}secondary{% endif %}">
+            {{ user.get_user_type_display }}
+        </span>
+    </div>
+</div>
+
+<!-- System Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card dashboard-card stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <i class="fas fa-bus fa-2x text-primary"></i>
+                    </div>
+                    <div class="col-9">
+                        <h4 class="card-title">{{ total_buses }}</h4>
+                        <p class="card-text text-muted">Total Buses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card dashboard-card stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <i class="fas fa-graduation-cap fa-2x text-success"></i>
+                    </div>
+                    <div class="col-9">
+                        <h4 class="card-title">{{ total_students }}</h4>
+                        <p class="card-text text-muted">Total Students</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card dashboard-card stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <i class="fas fa-route fa-2x text-warning"></i>
+                    </div>
+                    <div class="col-9">
+                        <h4 class="card-title">{{ active_routes }}</h4>
+                        <p class="card-text text-muted">Active Routes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card dashboard-card stat-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <i class="fas fa-bus fa-2x text-info"></i>
+                    </div>
+                    <div class="col-9">
+                        <h4 class="card-title">{{ active_buses }}</h4>
+                        <p class="card-text text-muted">Active Buses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User-Specific Content -->
+{% if user.user_type == 'parent' %}
+    {% include 'dashboard/parent_dashboard.html' %}
+{% elif user.user_type == 'driver' %}
+    {% include 'dashboard/driver_dashboard.html' %}
+{% elif user.user_type in 'admin,school_staff' %}
+    {% include 'dashboard/admin_dashboard.html' %}
+{% endif %}
+
+{% endblock %}

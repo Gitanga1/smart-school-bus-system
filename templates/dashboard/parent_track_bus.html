@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Bus - Parent{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bus-marker {
+        width: 40px;
+        height: 40px;
+        background: #ffc107;
+        border: 3px solid #ff5722;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+    .map-container {
+        height: 400px;
+        background: #e9ecef;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .bus-card {
+        border-left: 4px solid #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-map-marked-alt"></i> Track Bus Live
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+{% if child_bus_data %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Live Map Simulation -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-map"></i> Live Bus Locations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="map-container">
+                    <div class="text-center">
+                        <div class="bus-marker mx-auto mb-3">
+                            <i class="fas fa-bus"></i>
+                        </div>
+                        <h4>Live Bus Tracking</h4>
+                        <p class="text-muted">In a real application, this would show actual GPS locations on an interactive map.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-success me-2"><i class="fas fa-satellite"></i> GPS Active</span>
+                            <span class="badge bg-info"><i class="fas fa-clock"></i> Updated just now</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="p-2">
+                            <i class="fas fa-bus fa-2x text-warning mb-2"></i>
+                            <h5>{{ child_bus_data|length }}</h5>
+                            <small class="text-muted">Active Buses</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2">
+                            <i class="fas fa-child fa-2x text-success mb-2"></i>
+                            <h5>{{ child_bus_data|length }}</h5>
+                            <small class="text-muted">Children Tracked</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2">
+                            <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                            <h5>Live</h5>
+                            <small class="text-muted">Real-time Data</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-2">
+                            <i class="fas fa-bell fa-2x text-danger mb-2"></i>
+                            <h5>On</h5>
+                            <small class="text-muted">Alerts Active</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Bus Information -->
+        {% for data in child_bus_data %}
+        <div class="card bus-card mb-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-child"></i> {{ data.child.first_name }}'s Bus
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h5 class="text-primary">Bus {{ data.bus.bus_number }}</h5>
+                        <p class="mb-1 small">
+                            <i class="fas fa-route text-success"></i>
+                            {% if data.route %}{{ data.route.route_name }}{% else %}No active route{% endif %}
+                        </p>
+                    </div>
+                    <span class="badge bg-{% if data.latest_location %}success{% else %}warning{% endif %}">
+                        {% if data.latest_location %}Live{% else %}Offline{% endif %}
+                    </span>
+                </div>
+                
+                {% if data.latest_location %}
+                <div class="mb-2">
+                    <small class="text-muted">
+                        <i class="fas fa-map-marker-alt text-danger"></i>
+                        Last update: {{ data.latest_location.timestamp|timesince }} ago
+                    </small>
+                </div>
+                <div class="mb-2">
+                    <small>
+                        <i class="fas fa-tachometer-alt text-info"></i>
+                        Speed: <strong>{{ data.latest_location.speed }} km/h</strong>
+                    </small>
+                </div>
+                <div class="mb-2">
+                    <small>
+                        <i class="fas fa-clock text-success"></i>
+                        Est. arrival: <strong>{{ data.estimated_arrival }}</strong>
+                    </small>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No recent location data available.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bell"></i> Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'notification_settings' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-cog"></i> Notification Settings
+                    </a>
+                    <a href="{% url 'child_schedule' %}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-calendar"></i> View Schedule
+                    </a>
+                    <button class="btn btn-outline-warning btn-sm" onclick="alert('Notification test sent!')">
+                        <i class="fas fa-bell"></i> Test Alert
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                <h4>No Buses to Track</h4>
+                <p class="text-muted">Your children are not currently assigned to any active bus routes.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Return to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

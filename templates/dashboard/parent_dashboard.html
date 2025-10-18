@@ -1,0 +1,278 @@
+<!-- DEBUG: PARENT DASHBOARD TEMPLATE LOADED - {{ request.path }} -->
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>DEBUG:</strong> This is templates/dashboard/parent_dashboard.html - If you see this, the correct file is loaded!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+
+<!-- Parent Dashboard Content -->
+<div class="row">
+    <!-- My Children Section -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-child"></i> My Children
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if my_children %}
+                    <div class="row">
+                        {% for child in my_children %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title">{{ child.first_name }} {{ child.last_name }}</h6>
+                                            <p class="card-text mb-1">
+                                                <small class="text-muted">Grade: {{ child.grade }}</small>
+                                            </p>
+                                            <p class="card-text mb-1">
+                                                <small class="text-muted">ID: {{ child.student_id }}</small>
+                                            </p>
+                                        </div>
+                                        <span class="badge bg-primary">{{ child.grade }}</span>
+                                    </div>
+                                    
+                                    <!-- Bus Information -->
+                                    {% for bus_data in child_bus_data %}
+                                        {% if bus_data.child.id == child.id %}
+                                        <div class="mt-3 p-2 bg-light rounded">
+                                            <small>
+                                                <i class="fas fa-bus text-warning"></i>
+                                                <strong>Bus {{ bus_data.bus.bus_number }}</strong><br>
+                                                {% if bus_data.route %}
+                                                    <i class="fas fa-route text-info"></i>
+                                                    {{ bus_data.route.route_name }}<br>
+                                                    <i class="fas fa-clock text-success"></i>
+                                                    Pickup: {{ bus_data.route.start_time }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    <!-- Today's Attendance -->
+                                    {% for attendance in today_attendance %}
+                                        {% if attendance.student.id == child.id %}
+                                        <div class="mt-2">
+                                            <span class="badge bg-{% if attendance.status == 'present' %}success{% elif attendance.status == 'absent' %}danger{% else %}warning{% endif %}">
+                                                Today: {{ attendance.status|title }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-child fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No children registered yet.</p>
+                        <small class="text-muted">Contact school administration to add your children.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Info Sidebar -->
+    <div class="col-lg-4 mb-4">
+        <!-- Notifications -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bell"></i> Recent Notifications
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_notifications %}
+                    <div class="list-group list-group-flush">
+                        {% for notification in recent_notifications %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.title }}</h6>
+                                <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1 small">{{ notification.message|truncatewords:10 }}</p>
+                            <span class="badge bg-{{ notification.notification_type }}">
+                                {{ notification.get_notification_type_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">
+                        <i class="fas fa-bell-slash fa-2x mb-2"></i><br>
+                        No recent notifications
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line"></i> Quick Stats
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="p-2 bg-light rounded">
+                            <i class="fas fa-bus fa-2x text-primary mb-2"></i>
+                            <h5>{{ active_buses }}</h5>
+                            <small class="text-muted">Active Buses</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-2 bg-light rounded">
+                            <i class="fas fa-route fa-2x text-success mb-2"></i>
+                            <h5>{{ active_routes }}</h5>
+                            <small class="text-muted">Active Routes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-rocket"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{% url 'track_bus' %}" class="btn btn-outline-primary btn-lg w-100 h-100 py-3">
+                            <i class="fas fa-map-marked-alt fa-2x mb-2"></i><br>
+                            <span>Track Bus</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{% url 'notification_settings' %}" class="btn btn-outline-success btn-lg w-100 h-100 py-3">
+                            <i class="fas fa-bell fa-2x mb-2"></i><br>
+                            <span>Notifications</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{% url 'child_schedule' %}" class="btn btn-outline-info btn-lg w-100 h-100 py-3">
+                            <i class="fas fa-clock fa-2x mb-2"></i><br>
+                            <span>Schedule</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <button type="button" class="btn btn-outline-warning btn-lg w-100 h-100 py-3" data-bs-toggle="modal" data-bs-target="#contactModal">
+                            <i class="fas fa-phone fa-2x mb-2"></i><br>
+                            <span>Contact</span>
+                        </button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Contact -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Emergency Contact
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-2">
+                        <i class="fas fa-school fa-2x text-primary mb-2"></i>
+                        <h6>School Office</h6>
+                        <p class="mb-1">(+254) 743-147417</p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <i class="fas fa-bus fa-2x text-warning mb-2"></i>
+                        <h6>Transportation</h6>
+                        <p class="mb-1">(+254) 725-982343</p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                        <h6>Emergency</h6>
+                        <p class="mb-1">(+254) 743-147417</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="contactModalLabel">
+                    <i class="fas fa-phone me-2"></i>Contact School
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-school text-primary me-2"></i>School Office
+                                </h6>
+                                <p class="mb-1"><strong>Phone:</strong> (+254) 743147417</p>
+                                <p class="mb-1"><strong>Email:</strong> office@school.edu</p>
+                                <p class="mb-0"><strong>Hours:</strong> 7:30 AM - 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-bus text-warning me-2"></i>Transportation Department
+                                </h6>
+                                <p class="mb-1"><strong>Phone:</strong> (+254) 725982343</p>
+                                <p class="mb-1"><strong>Email:</strong> transportation@school.edu</p>
+                                <p class="mb-0"><strong>Hours:</strong> 6:00 AM - 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card border-success">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-shield-alt text-success me-2"></i>Emergency Contact
+                                </h6>
+                                <p class="mb-1"><strong>24/7 Emergency:</strong> (+254) 743147417</p>
+                                <p class="mb-1"><strong>Security:</strong> (+254) 743147417</p>
+                                <p class="mb-0 text-danger"><strong>For immediate assistance only</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="tel:+254743147417" class="btn btn-primary">
+                    <i class="fas fa-phone me-2"></i>Call School Office
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+

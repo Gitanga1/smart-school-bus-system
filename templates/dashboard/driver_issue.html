@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Issue - Driver{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-exclamation-triangle"></i> Report Issue
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tools"></i> Report an Issue or Emergency
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Issue Type</label>
+                        <select class="form-select" name="issue_type" required>
+                            <option value="">Select issue type...</option>
+                            <option value="mechanical">Mechanical Problem</option>
+                            <option value="traffic">Traffic Delay</option>
+                            <option value="weather">Weather Issue</option>
+                            <option value="student_issue">Student Behavior</option>
+                            <option value="route_problem">Route Problem</option>
+                            <option value="emergency">Emergency Situation</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Urgency Level</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="urgency" value="low" id="urgency_low">
+                            <label class="form-check-label text-success" for="urgency_low">
+                                <i class="fas fa-info-circle"></i> Low - Information only
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="urgency" value="medium" id="urgency_medium" checked>
+                            <label class="form-check-label text-warning" for="urgency_medium">
+                                <i class="fas fa-exclamation-circle"></i> Medium - Needs attention
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="urgency" value="high" id="urgency_high">
+                            <label class="form-check-label text-danger" for="urgency_high">
+                                <i class="fas fa-exclamation-triangle"></i> High - Urgent action required
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="5" 
+                                  placeholder="Please describe the issue in detail..." required></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> This report will be sent immediately to school administration.
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-phone-alt"></i> Emergency Contacts
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <i class="fas fa-school fa-2x text-primary mb-2"></i>
+                        <h6>School Office</h6>
+                        <p class="mb-1">(555) 123-4567</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-ambulance fa-2x text-danger mb-2"></i>
+                        <h6>Emergency Services</h6>
+                        <p class="mb-1">911</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-tools fa-2x text-warning mb-2"></i>
+                        <h6>Transportation Dept</h6>
+                        <p class="mb-1">(555) 123-4568</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

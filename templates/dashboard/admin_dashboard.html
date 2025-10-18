@@ -1,0 +1,220 @@
+<!-- Admin Dashboard Content -->
+<div class="row">
+    <!-- System Monitoring -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-heartbeat"></i> System Monitoring
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-bus fa-2x text-primary mb-2"></i>
+                            <h4>{{ active_buses }}/{{ total_buses }}</h4>
+                            <small class="text-muted">Active Buses</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-users fa-2x text-success mb-2"></i>
+                            <h4>{{ today_attendance.count }}</h4>
+                            <small class="text-muted">Today's Riders</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+                            <h4>{{ pending_notifications.count }}</h4>
+                            <small class="text-muted">Pending Alerts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-route fa-2x text-info mb-2"></i>
+                            <h4>{{ active_routes }}</h4>
+                            <small class="text-muted">Active Routes</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bus Locations -->
+                <h6><i class="fas fa-map-marker-alt"></i> Recent Bus Locations</h6>
+                {% if recent_locations %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Bus</th>
+                                    <th>Location</th>
+                                    <th>Speed</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for location in recent_locations %}
+                                <tr>
+                                    <td>
+                                        <strong>Bus {{ location.bus.bus_number }}</strong>
+                                    </td>
+                                    <td>
+                                        <small>
+                                            {{ location.latitude|floatformat:4 }}, 
+                                            {{ location.longitude|floatformat:4 }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if location.speed and location.speed > 80 %}danger{% else %}success{% endif %}">
+                                            {{ location.speed|default:0 }} km/h
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ location.timestamp|timesince }} ago</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if location.speed and location.speed > 80 %}warning{% else %}success{% endif %}">
+                                            {% if location.speed and location.speed > 80 %}Speeding{% else %}Normal{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No recent location data available.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Admin Actions -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cogs"></i> Admin Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/admin/accounts/user/" class="btn btn-outline-primary text-start">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                    <a href="/admin/buses/bus/" class="btn btn-outline-success text-start">
+                        <i class="fas fa-bus"></i> Manage Buses
+                    </a>
+                    <a href="/admin/students/student/" class="btn btn-outline-info text-start">
+                        <i class="fas fa-graduation-cap"></i> Manage Students
+                    </a>
+                    <a href="/admin/routes/route/" class="btn btn-outline-warning text-start">
+                        <i class="fas fa-route"></i> Manage Routes
+                    </a>
+                    <a href="/admin/bus_notifications/notification/" class="btn btn-outline-danger text-start">
+                        <i class="fas fa-bell"></i> Send Notifications
+                    </a>
+                    <a href="/admin/tracking/buslocation/" class="btn btn-outline-secondary text-start">
+                        <i class="fas fa-map-marker-alt"></i> View Tracking
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Alerts -->
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> System Alerts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pending_notifications %}
+                    <div class="list-group list-group-flush">
+                        {% for notification in pending_notifications %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.title }}</h6>
+                                <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1 small">{{ notification.message }}</p>
+                            <span class="badge bg-{{ notification.notification_type }}">
+                                {{ notification.get_notification_type_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i><br>
+                        No pending alerts
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Overview -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar"></i> Quick Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-bus fa-2x text-primary mb-2"></i>
+                            <h5>{{ total_buses }}</h5>
+                            <small class="text-muted">Total Buses</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-graduation-cap fa-2x text-success mb-2"></i>
+                            <h5>{{ total_students }}</h5>
+                            <small class="text-muted">Total Students</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-route fa-2x text-warning mb-2"></i>
+                            <h5>{{ active_routes }}</h5>
+                            <small class="text-muted">Active Routes</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-bell fa-2x text-danger mb-2"></i>
+                            <h5>{{ pending_notifications.count }}</h5>
+                            <small class="text-muted">Pending Alerts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
+                            <h5>{{ recent_locations.count }}</h5>
+                            <small class="text-muted">Recent Locations</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-2">
+                            <i class="fas fa-users fa-2x text-secondary mb-2"></i>
+                            <h5>{{ today_attendance.count }}</h5>
+                            <small class="text-muted">Today's Attendance</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
